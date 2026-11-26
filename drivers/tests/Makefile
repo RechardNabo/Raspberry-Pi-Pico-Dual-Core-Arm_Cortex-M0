@@ -7,7 +7,7 @@ INC     := -Ivendor/unity -Iunit/support -I..
 
 MODULES := gpio uart spi i2c pwm adc
 DEVICES := dig_in analog_in dig_out
-BINS    := $(MODULES:%=build/test_rp_%) $(DEVICES:%=build/test_%) build/test_pwm_out build/test_quad_enc build/test_timer build/test_onewire
+BINS    := $(MODULES:%=build/test_rp_%) $(DEVICES:%=build/test_%) build/test_pwm_out build/test_quad_enc build/test_timer build/test_onewire build/test_kit build/test_climate_station build/test_security_alarm
 
 all: $(BINS) run
 
@@ -38,6 +38,16 @@ build/test_timer: unit/test_timer.c $(UNITY) $(SUPPORT) | build
 
 build/test_onewire: unit/test_onewire.c $(UNITY) $(SUPPORT) | build
 	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/onewire/onewire.c ../peripherals/gpio/rp_gpio.c ../peripherals/timer/rp_timer.c $(UNITY) $(SUPPORT)
+
+
+build/test_kit: unit/test_kit.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/kit/kit.c ../devices/dig_in/dig_in.c ../devices/analog_in/analog_in.c ../devices/dig_out/dig_out.c ../devices/pwm_out/pwm_out.c ../devices/quad_enc/quad_enc.c ../devices/onewire/onewire.c ../peripherals/gpio/rp_gpio.c ../peripherals/adc/rp_adc.c ../peripherals/pwm/rp_pwm.c ../peripherals/timer/rp_timer.c $(UNITY) $(SUPPORT)
+
+build/test_climate_station: unit/test_climate_station.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../apps/climate_station/climate_station.c ../devices/kit/kit.c ../devices/dig_in/dig_in.c ../devices/analog_in/analog_in.c ../devices/dig_out/dig_out.c ../devices/pwm_out/pwm_out.c ../devices/quad_enc/quad_enc.c ../devices/onewire/onewire.c ../peripherals/gpio/rp_gpio.c ../peripherals/adc/rp_adc.c ../peripherals/pwm/rp_pwm.c ../peripherals/timer/rp_timer.c $(UNITY) $(SUPPORT)
+
+build/test_security_alarm: unit/test_security_alarm.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../apps/security_alarm/security_alarm.c $(UNITY) $(SUPPORT)
 
 run: $(BINS)
 	@total=0; fail=0; \
