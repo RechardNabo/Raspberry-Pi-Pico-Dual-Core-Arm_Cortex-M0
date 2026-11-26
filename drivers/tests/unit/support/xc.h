@@ -16,8 +16,18 @@ volatile uint32_t *mock_sio_out_model(void);
 volatile uint32_t *mock_sio_oe_model(void);
 #define SIO_GPIO_OUT (*mock_sio_out_model())
 #define SIO_GPIO_OE  (*mock_sio_oe_model())
-extern volatile uint32_t SIO_GPIO_OUT_SET, SIO_GPIO_OUT_CLR, SIO_GPIO_OUT_XOR;
-extern volatile uint32_t SIO_GPIO_OE_SET, SIO_GPIO_OE_CLR;
+/* alias registers are modelled macros: every write first flushes pending
+ * writes to the parent IN ORDER — preserving silicon write ordering */
+volatile uint32_t *mock_out_set_w(void);
+volatile uint32_t *mock_out_clr_w(void);
+volatile uint32_t *mock_out_xor_w(void);
+volatile uint32_t *mock_oe_set_w(void);
+volatile uint32_t *mock_oe_clr_w(void);
+#define SIO_GPIO_OUT_SET (*mock_out_set_w())
+#define SIO_GPIO_OUT_CLR (*mock_out_clr_w())
+#define SIO_GPIO_OUT_XOR (*mock_out_xor_w())
+#define SIO_GPIO_OE_SET  (*mock_oe_set_w())
+#define SIO_GPIO_OE_CLR  (*mock_oe_clr_w())
 extern volatile uint32_t SIO_GPIO_IN;
 
 /* UART0/1 â€” flat */

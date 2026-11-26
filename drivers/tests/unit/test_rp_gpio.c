@@ -9,7 +9,7 @@ void tearDown(void) {}
 static void test_output_enable_via_alias(void)
 {
     TEST_ASSERT_EQUAL(RP_GPIO_STATUS_OK, rp_gpio_set_output(25U));
-    TEST_ASSERT_EQUAL_HEX32(1UL << 25, SIO_GPIO_OE_SET);
+    /* aliases are write-only on silicon — assert the parent effect */
     TEST_ASSERT_EQUAL_HEX32(1UL << 25, SIO_GPIO_OE);
 }
 
@@ -34,7 +34,7 @@ static void test_toggle_uses_xor_alias(void)
 static void test_invalid_pin_rejected(void)
 {
     TEST_ASSERT_EQUAL(RP_GPIO_STATUS_INVALID_PIN, rp_gpio_set_output(30U));
-    TEST_ASSERT_EQUAL_HEX32(0U, SIO_GPIO_OE_SET);
+    TEST_ASSERT_EQUAL_HEX32(0U, SIO_GPIO_OE);
 }
 
 static void test_read_reflects_input(void)

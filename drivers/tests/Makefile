@@ -6,7 +6,8 @@ SUPPORT := unit/support/mock_sfr.c
 INC     := -Ivendor/unity -Iunit/support -I..
 
 MODULES := gpio uart spi i2c pwm adc
-BINS    := $(MODULES:%=build/test_rp_%)
+DEVICES := dig_in analog_in dig_out
+BINS    := $(MODULES:%=build/test_rp_%) $(DEVICES:%=build/test_%)
 
 all: $(BINS) run
 
@@ -15,6 +16,15 @@ build:
 
 build/test_rp_%: unit/test_rp_%.c $(UNITY) $(SUPPORT) | build
 	$(CC) $(CFLAGS) $(INC) -o $@ $< ../peripherals/$*/rp_$*.c $(UNITY) $(SUPPORT)
+
+build/test_dig_in: unit/test_dig_in.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/dig_in/dig_in.c ../peripherals/gpio/rp_gpio.c $(UNITY) $(SUPPORT)
+
+build/test_analog_in: unit/test_analog_in.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/analog_in/analog_in.c ../peripherals/adc/rp_adc.c $(UNITY) $(SUPPORT)
+
+build/test_dig_out: unit/test_dig_out.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/dig_out/dig_out.c ../peripherals/gpio/rp_gpio.c $(UNITY) $(SUPPORT)
 
 run: $(BINS)
 	@total=0; fail=0; \

@@ -4,8 +4,8 @@
 #include "xc.h"
 
 static volatile uint32_t sio_out_store, sio_oe_store;
-volatile uint32_t SIO_GPIO_OUT_SET, SIO_GPIO_OUT_CLR, SIO_GPIO_OUT_XOR;
-volatile uint32_t SIO_GPIO_OE_SET, SIO_GPIO_OE_CLR;
+static volatile uint32_t out_set_cell, out_clr_cell, out_xor_cell;
+static volatile uint32_t oe_set_cell, oe_clr_cell;
 volatile uint32_t SIO_GPIO_IN;
 
 volatile uint32_t U0DR, U0FR, U0IBRD, U0FBRD, U0LCRH, U0CR;
@@ -22,20 +22,36 @@ volatile uint32_t PWM_CSR[8], PWM_DIV[8], PWM_CC[8], PWM_TOP[8];
 static volatile uint32_t adc_cs_store;
 volatile uint32_t ADC_RESULT;
 
+static void flush_out(void)
+{
+    sio_out_store &= ~out_clr_cell;
+    sio_out_store |= out_set_cell;
+    sio_out_store ^= out_xor_cell;
+    out_clr_cell = out_set_cell = out_xor_cell = 0U;
+}
+
+static void flush_oe(void)
+{
+    sio_oe_store &= ~oe_clr_cell;
+    sio_oe_store |= oe_set_cell;
+    oe_clr_cell = oe_set_cell = 0U;
+}
+
+volatile uint32_t *mock_out_set_w(void) { flush_out(); return &out_set_cell; }
+volatile uint32_t *mock_out_clr_w(void) { flush_out(); return &out_clr_cell; }
+volatile uint32_t *mock_out_xor_w(void) { flush_out(); return &out_xor_cell; }
+volatile uint32_t *mock_oe_set_w(void)  { flush_oe();  return &oe_set_cell; }
+volatile uint32_t *mock_oe_clr_w(void)  { flush_oe();  return &oe_clr_cell; }
+
 volatile uint32_t *mock_sio_out_model(void)
 {
-    sio_out_store |= SIO_GPIO_OUT_SET;
-    sio_out_store &= ~SIO_GPIO_OUT_CLR;
-    sio_out_store ^= SIO_GPIO_OUT_XOR;
-    SIO_GPIO_OUT_SET = SIO_GPIO_OUT_CLR = SIO_GPIO_OUT_XOR = 0U;
+    flush_out();
     return &sio_out_store;
 }
 
 volatile uint32_t *mock_sio_oe_model(void)
 {
-    sio_oe_store |= SIO_GPIO_OE_SET;
-    sio_oe_store &= ~SIO_GPIO_OE_CLR;
-    SIO_GPIO_OE_SET = SIO_GPIO_OE_CLR = 0U;
+    flush_oe();
     return &sio_oe_store;
 }
 
@@ -51,8 +67,8 @@ volatile uint32_t *mock_adc_cs_model(void)
 void mock_sfr_reset(void)
 {
     sio_out_store = sio_oe_store = 0U;
-    SIO_GPIO_OUT_SET = SIO_GPIO_OUT_CLR = SIO_GPIO_OUT_XOR = 0U;
-    SIO_GPIO_OE_SET = SIO_GPIO_OE_CLR = 0U;
+    out_set_cell = out_clr_cell = out_xor_cell = 0U;
+    oe_set_cell = oe_clr_cell = 0U;
     SIO_GPIO_IN = 0U;
     U0DR = U0FR = U0IBRD = U0FBRD = U0LCRH = U0CR = 0U;
     U1DR = U1FR = U1IBRD = U1FBRD = U1LCRH = U1CR = 0U;
