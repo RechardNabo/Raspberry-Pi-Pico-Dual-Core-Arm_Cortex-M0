@@ -7,7 +7,7 @@ INC     := -Ivendor/unity -Iunit/support -I..
 
 MODULES := gpio uart spi i2c pwm adc
 DEVICES := dig_in analog_in dig_out
-BINS    := $(MODULES:%=build/test_rp_%) $(DEVICES:%=build/test_%)
+BINS    := $(MODULES:%=build/test_rp_%) $(DEVICES:%=build/test_%) build/test_pwm_out build/test_quad_enc build/test_timer build/test_onewire
 
 all: $(BINS) run
 
@@ -25,6 +25,19 @@ build/test_analog_in: unit/test_analog_in.c $(UNITY) $(SUPPORT) | build
 
 build/test_dig_out: unit/test_dig_out.c $(UNITY) $(SUPPORT) | build
 	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/dig_out/dig_out.c ../peripherals/gpio/rp_gpio.c $(UNITY) $(SUPPORT)
+
+
+build/test_pwm_out: unit/test_pwm_out.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/pwm_out/pwm_out.c ../peripherals/pwm/rp_pwm.c $(UNITY) $(SUPPORT)
+
+build/test_quad_enc: unit/test_quad_enc.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/quad_enc/quad_enc.c ../peripherals/gpio/rp_gpio.c $(UNITY) $(SUPPORT)
+
+build/test_timer: unit/test_timer.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../peripherals/timer/rp_timer.c $(UNITY) $(SUPPORT)
+
+build/test_onewire: unit/test_onewire.c $(UNITY) $(SUPPORT) | build
+	$(CC) $(CFLAGS) $(INC) -o $@ $< ../devices/onewire/onewire.c ../peripherals/gpio/rp_gpio.c ../peripherals/timer/rp_timer.c $(UNITY) $(SUPPORT)
 
 run: $(BINS)
 	@total=0; fail=0; \

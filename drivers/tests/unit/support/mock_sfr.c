@@ -1,7 +1,10 @@
 /* mock_sfr.c â€” backing memory + behavioral models, see xc.h. */
 #include <string.h>
+#include <stdbool.h>
 
 #include "xc.h"
+
+void mock_time_reset(void);
 
 static volatile uint32_t sio_out_store, sio_oe_store;
 static volatile uint32_t out_set_cell, out_clr_cell, out_xor_cell;
@@ -82,4 +85,70 @@ void mock_sfr_reset(void)
     memset((void *)PWM_TOP, 0, sizeof(PWM_TOP));
     adc_cs_store = 0U;
     ADC_RESULT = 0U;
+    mock_time_reset();
+}
+
+/* ---- virtual time engine ----
+ * Each timer read advances virtual time by the quantum — busy-wait loops
+ * in bitbang drivers terminate, and the total virtual time a driver
+ * consumes is measurable evidence of the timing it requested. */
+#define MOCK_TIME_QUANTUM_US  2ULL
+#define MOCK_SCHED_MAX        8
+
+static uint64_t vtime_us;
+static volatile uint32_t timerawl_cell, timerawh_cell;
+static struct {
+    uint64_t at_us;
+    uint8_t pin;
+    bool level;
+} sched[MOCK_SCHED_MAX];
+static int sched_count;
+
+void mock_time_reset(void)
+{
+    int i;
+    vtime_us = 0ULL;
+    sched_count = 0;
+    for (i = 0; i < MOCK_SCHED_MAX; i++) {
+        sched[i].at_us = 0ULL;
+        sched[i].pin = 0U;
+        sched[i].level = false;
+    }
+}
+
+uint64_t mock_time_now(void) { return vtime_us; }
+
+void mock_time_schedule(uint32_t offset_us, uint8_t pin, bool level)
+{
+    if (sched_count >= MOCK_SCHED_MAX) return;
+    sched[sched_count].at_us = vtime_us + offset_us;
+    sched[sched_count].pin = pin;
+    sched[sched_count].level = level;
+    sched_count++;
+}
+
+static void time_tick(void)
+{
+    int i;
+    vtime_us += MOCK_TIME_QUANTUM_US;
+    for (i = 0; i < sched_count; i++) {
+        if (sched[i].at_us != 0ULL && vtime_us >= sched[i].at_us) {
+            if (sched[i].level) SIO_GPIO_IN |= (1UL << sched[i].pin);
+            else                SIO_GPIO_IN &= ~(1UL << sched[i].pin);
+            sched[i].at_us = 0ULL;   /* consumed */
+        }
+    }
+}
+
+volatile uint32_t *mock_timerawl_model(void)
+{
+    time_tick();
+    timerawl_cell = (uint32_t)(vtime_us & 0xFFFFFFFFULL);
+    return &timerawl_cell;
+}
+
+volatile uint32_t *mock_timerawh_model(void)
+{
+    timerawh_cell = (uint32_t)(vtime_us >> 32);
+    return &timerawh_cell;
 }

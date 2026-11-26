@@ -10,6 +10,7 @@
 #define XC_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* SIO GPIO */
 volatile uint32_t *mock_sio_out_model(void);
@@ -49,6 +50,17 @@ extern volatile uint32_t PWM_CSR[8], PWM_DIV[8], PWM_CC[8], PWM_TOP[8];
 volatile uint32_t *mock_adc_cs_model(void);
 #define ADC_CS (*mock_adc_cs_model())
 extern volatile uint32_t ADC_RESULT;
+
+/* timer — modelled: virtual time auto-advances per read so busy-wait
+ * loops terminate; tests can schedule pin-state changes at time offsets
+ * (the host equivalent of a slave device answering on the bus) */
+volatile uint32_t *mock_timerawl_model(void);
+volatile uint32_t *mock_timerawh_model(void);
+#define TIMERAWL (*mock_timerawl_model())
+#define TIMERAWH (*mock_timerawh_model())
+void mock_time_reset(void);
+void mock_time_schedule(uint32_t offset_us, uint8_t pin, bool level);
+uint64_t mock_time_now(void);
 
 void mock_sfr_reset(void);
 
