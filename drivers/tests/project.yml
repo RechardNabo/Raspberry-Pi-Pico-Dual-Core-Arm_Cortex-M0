@@ -1,0 +1,21 @@
+:project:
+  :build_root: build_ceedling
+  :use_exceptions: FALSE
+:extension:
+  :executable: .exe
+:paths:
+  :test:
+    - unit
+  :source:
+    - ../peripherals/gpio
+    - ../peripherals/uart
+    - ../peripherals/spi
+    - ../peripherals/i2c
+    - ../peripherals/pwm
+    - ../peripherals/adc
+  :support:
+    - unit/support
+:defines:
+  :test:
+    - UNIT_TEST_HOST
+    - UNIT_TEST_NO_MAIN
