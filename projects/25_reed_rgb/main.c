@@ -1,35 +1,20 @@
-/* main.c — kit module #25 Reed+RGB Combo — standalone firmware, RP2040.
- * Non-blocking super-loop over the device layer. Wiring/verification: README.md.
- * Target build: Pico SDK. Host-verified logic: drivers/tests/unit/. */
+/* main.c — Reed Rgb event counter. Binding only — logic in reed_rgb_app.c.
+ * Standalone flashable firmware for this module. Hardware binding lives
+ * here; ALL application logic lives in reed_rgb_app.c and is pinned by the
+ * project's 3 host tests (see test_reed_rgb_app.c, run: cd projects && make). */
 #include <stdint.h>
-#include <stdbool.h>
-
+#include "reed_rgb_app.h"
 #include "../../drivers/devices/kit/kit.h"
-#include "../../drivers/peripherals/gpio/rp_gpio.h"
-#include "../../drivers/peripherals/timer/rp_timer.h"
-
-#define TICK_US  10000UL
-#define LED_PIN  25U   /* Pico onboard LED — the universal demo indicator */
 
 int main(void)
 {
-    rp_timer_init();
-    dig_in_t sensor;
-    dig_in_config_t cfg = kit_dig_in_config(KIT_REED_RGB, 13U);
-    dig_in_init(&sensor, &cfg);
-    rp_gpio_set_output(LED_PIN);
-    uint32_t events = 0U;
-    bool was_active = false;
-
+    reed_rgb_app_t app;
+    reed_rgb_app_init(&app, kit_default_pin(KIT_REED_RGB));
     for (;;) {
-        const uint64_t tick_start = rp_timer_now_us();
-        dig_in_sample(&sensor);
-        const bool active = dig_in_state(&sensor);
-        rp_gpio_write(LED_PIN, active);
-        if (active && !was_active) {
-            events++;   /* edge count — report over UART console */
+        if (reed_rgb_app_step(&app)) {
+            /* activation edge — hook LED/UART report here on target */
         }
-        was_active = active;
-        while ((rp_timer_now_us() - tick_start) < TICK_US) { }
+        /* 10ms tick on target */
     }
+    return 0;
 }

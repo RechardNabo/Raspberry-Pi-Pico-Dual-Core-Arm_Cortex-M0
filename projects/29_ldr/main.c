@@ -1,30 +1,20 @@
-/* main.c — kit module #29 LDR Light Sensor — standalone firmware, RP2040.
- * Non-blocking super-loop over the device layer. Wiring/verification: README.md.
- * Target build: Pico SDK. Host-verified logic: drivers/tests/unit/. */
+/* main.c — Ldr threshold monitor. Binding only — logic in ldr_app.c.
+ * Standalone flashable firmware for this module. Hardware binding lives
+ * here; ALL application logic lives in ldr_app.c and is pinned by the
+ * project's 3 host tests (see test_ldr_app.c, run: cd projects && make). */
 #include <stdint.h>
-#include <stdbool.h>
-
+#include "ldr_app.h"
 #include "../../drivers/devices/kit/kit.h"
-#include "../../drivers/peripherals/gpio/rp_gpio.h"
-#include "../../drivers/peripherals/timer/rp_timer.h"
-
-#define TICK_US  100000UL
-#define LED_PIN  25U   /* Pico onboard LED — the universal demo indicator */
 
 int main(void)
 {
-    rp_timer_init();
-    analog_in_t sensor;
-    analog_in_config_t cfg = kit_analog_config(KIT_LDR, 0U);
-    analog_in_init(&sensor, &cfg);
-    rp_adc_init();
-    int32_t eng = 0;
-
+    ldr_app_t app;
+    ldr_app_init(&app, 0U);
     for (;;) {
-        const uint64_t tick_start = rp_timer_now_us();
-        if (analog_in_read_scaled(&sensor, &eng) == ANALOG_IN_STATUS_OK) {
-            /* report eng over UART console — scaling per kit table */
+        if (ldr_app_step(&app)) {
+            /* threshold event — hook alarm/LED here on target */
         }
-        while ((rp_timer_now_us() - tick_start) < TICK_US) { }
+        /* 10ms tick on target */
     }
+    return 0;
 }
