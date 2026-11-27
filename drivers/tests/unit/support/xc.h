@@ -44,7 +44,7 @@ extern volatile uint32_t I2C0CON, I2C0TAR, I2C0DATACMD, I2C0ENABLE, I2C0FSHCNT, 
 extern volatile uint32_t I2C1CON, I2C1TAR, I2C1DATACMD, I2C1ENABLE, I2C1FSHCNT, I2C1FSLCNT, I2C1STATUS;
 
 /* PWM — array simplification */
-extern volatile uint32_t PWM_CSR[8], PWM_DIV[8], PWM_CC[8], PWM_TOP[8];
+extern volatile uint32_t PWM_CSR[40], PWM_DIV[40], PWM_CC[40], PWM_TOP[40];
 
 /* ADC — CS modelled, RESULT flat */
 volatile uint32_t *mock_adc_cs_model(void);

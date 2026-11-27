@@ -36,11 +36,11 @@ rp_pwm_status_t rp_pwm_init(uint8_t slice, const rp_pwm_config_t *config)
     top = config->clk_hz / (div * config->frequency) - 1U;
     if (top > 0xFFFFUL) return RP_PWM_STATUS_FREQ_IMPOSSIBLE;
 
-    PWM_CSR[slice] = 0U;          /* disabled while configuring */
-    PWM_DIV[slice] = div << 4;    /* integer divider, frac 0 */
-    PWM_TOP[slice] = top;
-    PWM_CC[slice] = 0U;
-    PWM_CSR[slice] = CSR_EN;      /* enable last */
+    PWM_CSR[slice * 5U] = 0U;          /* disabled while configuring */
+    PWM_DIV[slice * 5U] = div << 4;    /* integer divider, frac 0 */
+    PWM_TOP[slice * 5U] = top;
+    PWM_CC[slice * 5U] = 0U;
+    PWM_CSR[slice * 5U] = CSR_EN;      /* enable last */
     return RP_PWM_STATUS_OK;
 }
 
@@ -49,13 +49,13 @@ rp_pwm_status_t rp_pwm_set_duty_permille(uint8_t slice, uint8_t channel, uint32_
     uint32_t level, cc;
     if (slice >= 8U) return RP_PWM_STATUS_INVALID_SLICE;
     if (permille > 1000U) return RP_PWM_STATUS_INVALID_PARAM;
-    level = ((PWM_TOP[slice] + 1UL) * permille) / 1000U;
-    cc = PWM_CC[slice];
+    level = ((PWM_TOP[slice * 5U] + 1UL) * permille) / 1000U;
+    cc = PWM_CC[slice * 5U];
     if (channel == 0U) {
         cc = (cc & 0xFFFF0000UL) | (level & 0xFFFFUL);
     } else {
         cc = (cc & 0xFFFFUL) | ((level & 0xFFFFUL) << 16);
     }
-    PWM_CC[slice] = cc;
+    PWM_CC[slice * 5U] = cc;
     return RP_PWM_STATUS_OK;
 }
