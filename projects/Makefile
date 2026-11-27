@@ -16,7 +16,7 @@ DEVSRC := ../drivers/devices/dig_in/dig_in.c ../drivers/devices/analog_in/analog
           ../drivers/peripherals/pwm/rp_pwm.c ../drivers/peripherals/timer/rp_timer.c
 LIBSRC := lib/blink.c lib/edge_count.c lib/hysteresis.c lib/colorwheel.c lib/sequencer.c lib/peak_detect.c
 
-BINS := build/test_01_joystick build/test_02_ir_receiver build/test_03_laser build/test_04_dht11 build/test_05_ir_proximity build/test_06_relay build/test_07_obstacle build/test_08_heartbeat build/test_09_sound_analog build/test_10_touch build/test_11_flame build/test_12_rgb_led build/test_13_line build/test_14_hall_linear build/test_15_rotary_encoder build/test_16_buzzer_active build/test_17_magic_cup build/test_18_buzzer_passive build/test_19_ds18b20 build/test_20_broken_light build/test_21_lm35 build/test_22_dual_led build/test_23_mercury build/test_24_hall_switch build/test_25_reed_rgb build/test_26_tilt build/test_27_flash_led build/test_28_button build/test_29_ldr build/test_30_vibration build/test_31_knock build/test_32_lm35_b build/test_33_hall_linear_b build/test_34_mic_sound build/test_35_reed_big
+BINS := build/test_01_joystick build/test_02_ir_receiver build/test_03_laser build/test_04_dht11 build/test_05_ir_proximity build/test_06_relay build/test_07_obstacle build/test_08_heartbeat build/test_09_sound_analog build/test_10_touch build/test_11_flame build/test_12_rgb_led build/test_13_line build/test_14_hall_linear build/test_15_rotary_encoder build/test_16_buzzer_active build/test_17_magic_cup build/test_18_buzzer_passive build/test_19_ds18b20 build/test_20_broken_light build/test_21_lm35 build/test_22_dual_led build/test_23_mercury build/test_24_hall_switch build/test_25_reed_rgb build/test_26_tilt build/test_27_flash_led build/test_28_button build/test_29_ldr build/test_30_vibration build/test_31_knock build/test_32_lm35_b build/test_33_hall_linear_b build/test_34_mic_sound build/test_35_reed_big build/test_adv_01_climate_guard build/test_adv_02_security_alarm build/test_adv_03_auto_light build/test_adv_04_fire_sentinel build/test_adv_05_sound_level_rgb build/test_adv_06_knock_lock
 
 all: $(BINS) run
 
@@ -93,6 +93,25 @@ build/test_34_mic_sound: 34_mic_sound/test_mic_sound_app.c 34_mic_sound/mic_soun
 	$(CC) $(CFLAGS) $(INC) -I34_mic_sound -o $@ $< 34_mic_sound/mic_sound_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
 build/test_35_reed_big: 35_reed_big/test_reed_big_app.c 35_reed_big/reed_big_app.c | build
 	$(CC) $(CFLAGS) $(INC) -I35_reed_big -o $@ $< 35_reed_big/reed_big_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_01_climate_guard: advanced/01_climate_guard/test_climate_guard_app.c advanced/01_climate_guard/climate_guard_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/01_climate_guard -o $@ $< advanced/01_climate_guard/climate_guard_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_02_security_alarm: advanced/02_security_alarm/test_security_alarm_app.c advanced/02_security_alarm/security_alarm_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/02_security_alarm -o $@ $< advanced/02_security_alarm/security_alarm_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_03_auto_light: advanced/03_auto_light/test_auto_light_app.c advanced/03_auto_light/auto_light_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/03_auto_light -o $@ $< advanced/03_auto_light/auto_light_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_04_fire_sentinel: advanced/04_fire_sentinel/test_fire_sentinel_app.c advanced/04_fire_sentinel/fire_sentinel_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/04_fire_sentinel -o $@ $< advanced/04_fire_sentinel/fire_sentinel_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_05_sound_level_rgb: advanced/05_sound_level_rgb/test_sound_level_rgb_app.c advanced/05_sound_level_rgb/sound_level_rgb_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/05_sound_level_rgb -o $@ $< advanced/05_sound_level_rgb/sound_level_rgb_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
+build/test_adv_06_knock_lock: advanced/06_knock_lock/test_knock_lock_app.c advanced/06_knock_lock/knock_lock_app.c | build
+	$(CC) $(CFLAGS) $(INC) -Iadvanced/06_knock_lock -o $@ $< advanced/06_knock_lock/knock_lock_app.c $(DEVSRC) $(LIBSRC) $(UNITY) $(SUPPORT)
+
 
 run: $(BINS)
 	@total=0; fail=0; \
